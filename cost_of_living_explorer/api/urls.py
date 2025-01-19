@@ -1,6 +1,7 @@
 from django.urls import path
+from api.views import get_country_data
 from . import views
 
 urlpatterns = [
-    path('api/history/<str:country>/<str:indicator>/', views.get_country_indicators, name='country_indicators'),
+    path('fetch-country-data/<str:country>/', views.fetch_country_data, name='fetch_country_data'),
 ]

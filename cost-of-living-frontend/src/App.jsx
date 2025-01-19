@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from "react";
+import { SUPPORTED_COUNTRIES } from "./constants/countries";
+import { fetchCountryData } from "./services/api";
+import GDPChart from "./components/charts/GDPChart";
+import DataTable from "./components/table/DataTable";
 
-function App() {
-  const [count, setCount] = useState(0)
+const CountryComparison = () => {
+  const [country1, setCountry1] = useState("Sweden");
+  const [country2, setCountry2] = useState("Mexico");
+  const [country1Data, setCountry1Data] = useState({});
+  const [country2Data, setCountry2Data] = useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data1 = await fetchCountryData(country1);
+      const data2 = await fetchCountryData(country2);
+      setCountry1Data(data1);
+      setCountry2Data(data2);
+    };
+    fetchData();
+  }, [country1, country2]);
 
   return (
-    <>
+    <div>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <select onChange={(e) => setCountry1(e.target.value)} value={country1}>
+          {Object.keys(SUPPORTED_COUNTRIES).map((country) => (
+            <option key={country} value={country}>
+              {country}
+            </option>
+          ))}
+        </select>
+        <select onChange={(e) => setCountry2(e.target.value)} value={country2}>
+          {Object.keys(SUPPORTED_COUNTRIES).map((country) => (
+            <option key={country} value={country}>
+              {country}
+            </option>
+          ))}
+        </select>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
 
-export default App
+      <div>
+        <GDPChart data={[country1Data, country2Data]} />
+        <DataTable data={{ GDP: country1Data.GDP, Inflation: country1Data.Inflation }} />
+      </div>
+    </div>
+  );
+};
+
+export default CountryComparison;
